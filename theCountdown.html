@@ -75,6 +75,7 @@
             }
         })
         let lastMin = 0;
+        let lastSec = 0;
         let t = null;
         function update() {
             const ms = endTime - Date.now();
@@ -91,9 +92,27 @@
                 t = setTimeout(() => {
                     document.body.classList.remove("bg-flash")
                 }, 500)
+
+                var audio = new Audio('gong.mp3');
+                audio.classList.add("hide");
+                audio.volume = 1;
+                audio.play();
+                if (minutes == -1) {
+                    var audio2 = new Audio('final.mp3');
+                    audio2.classList.add("hide");
+                    audio2.volume = 1;
+                    audio2.play();
+                }
             }
             lastMin = minutes;
 
+            if (lastSec != seconds) {
+                var audio = new Audio('tick.mp3');
+                audio.classList.add("hide");
+                audio.volume = 0.1;
+                audio.play();
+            }
+            lastSec = seconds;
             timerDiv.innerText = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}.${String(milliseconds).padStart(3, '0')}`;
         }
     </script>

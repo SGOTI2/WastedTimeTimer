@@ -20,35 +20,55 @@
             .bg-flash {
                 background-color: oklch(0.637 0.237 25.331) !important;
             }
+            .pulse {
+                translate: -50% -50%;
+                transition: all 0.5s;
+                width: 0px;
+                height: 0px;
+                background-color: oklch(0.208 0.042 265.755);
+            }
+            
+            .pulse-pulse {
+                width: 100vh;
+                height: 100vh;
+                background-color: oklch(0.278 0.033 256.848) !important;
+            }
         </style>
     </head>
     <body class="bg-gray-900 text-center p-5 text-gray-200">
-        <div class="h-screen flex place-content-center content-center items-center flex-col">
+        <div class="pulse absolute rounded-full"></div>
+        <h3 class="now text-xl absolute text-gray-500 bottom-0 end-0 p-2">00:00:00.000</h3>
+        <div class="relative">
+            <div class="h-screen flex place-content-center content-center items-center flex-col">
             <h1 class="text-md tracking-wide text-gray-400">Lost Programming Time Timer</h1>
             <h1 class="timer font-bold text-5xl tracking-wider">00:00:00.000</h1>
-        </div>
-        <div class="flex items-center justify-center gap-3 m-5">
-            <button class="start cursor-pointer px-2 py-1 text-center bg-green-800 rounded">Start</button>
-            <button class="stop cursor-pointer px-2 py-1 text-center bg-red-800 rounded">Stop</button>
-        </div>
-        <div class="d-flex m-5">
-            <input type="number" class="hrs w-5 outline-none text-end" value="00">
-            :
-            <input type="number" class="mins w-5 outline-none text-end" value="00">
-            :
-            <input type="number" class="secs w-5 outline-none text-end" value="00">
-            .
-            <input type="number" class="mills w-7 outline-none text-start" value="000">
+                <canvas class="w-24 h-24" width="300" height="300"></canvas>
+            </div>
+            <div class="flex items-center justify-center gap-3 m-5">
+                <button class="start cursor-pointer px-2 py-1 text-center bg-green-800 rounded">Start</button>
+                <button class="stop cursor-pointer px-2 py-1 text-center bg-red-800 rounded">Stop</button>
+            </div>
+            <div class="d-flex m-5">
+                <input type="number" class="hrs w-5 outline-none text-end" value="00">
+                :
+                <input type="number" class="mins w-5 outline-none text-end" value="00">
+                :
+                <input type="number" class="secs w-5 outline-none text-end" value="00">
+                .
+                <input type="number" class="mills w-7 outline-none text-start" value="000">
+            </div>
         </div>
     </body>
     <script>
         const timerDiv = document.querySelector("h1.timer")
+        const nowTimeDiv = document.querySelector("h3.now")
         const startTimer = document.querySelector("button.start")
         const endTimer = document.querySelector("button.stop")
         const hrs = document.querySelector("input.hrs")
         const mins = document.querySelector("input.mins")
         const secs = document.querySelector("input.secs")
         const mills = document.querySelector("input.mills")
+        const p = document.querySelector("div.pulse")
         
         var addDt = 0;
         function calcTotal() {
@@ -86,6 +106,17 @@
         let lastMin = 0;
         let lastSec = 0;
         let t = null;
+        let t2 = null;
+
+        function time() {
+            const ms = Date.now() % (3600000 * 24) - (3600000 * 4);
+            const hours = Math.floor(ms / 3600000); // 1 hour = 3600000 ms
+            const minutes = Math.floor((ms % 3600000) / 60000); // 1 minute = 60000 ms
+            const seconds = Math.floor((ms % 60000) / 1000); // 1 second = 1000 ms
+            const milliseconds = ms % 1000;
+            nowTimeDiv.innerText = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}.${String(milliseconds).padStart(3, '0')}`;
+        }
+        setInterval(time, 10)
 
         function update() {
             const ms = Date.now() - timeStart + addDt;
@@ -101,22 +132,64 @@
                 }
                 t = setTimeout(() => {
                     document.body.classList.remove("bg-flash")
-                }, 1000)
+                }, 500)
             }
             lastMin = minutes;
 
             if (lastSec != seconds) {
                 play()
+                p.classList.add("pulse-pulse")
+                p.style.left = Math.random() * 100 + "vw";
+                p.style.top = Math.random() * 100 + "vw";
+                if (t2 != null) {
+                    clearTimeout(t2);
+                }
+                t2 = setTimeout(() => {
+                    p.classList.remove("pulse-pulse")
+                }, 500)
             }
             lastSec = seconds;
 
 
             timerDiv.innerText = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}.${String(milliseconds).padStart(3, '0')}`;
+            
+            let angle = seconds / 60 * Math.PI * 2
+
+            updateCanvas(angle)
         }
         function play() {
             var audio = new Audio('tick.mp3');
             audio.classList.add("hide");
             audio.play();
         }
+
+
+
+
+
+
+        const canvas = document.querySelector("canvas")
+        const ctx = canvas.getContext('2d');
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+        const radius = 100;
+
+        function updateCanvas(angle) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height)
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, 0, Math.PI * 2, true); // Outer circle
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = 'oklch(0.446 0.03 256.802)';
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY);
+            ctx.lineTo(centerX + Math.sin(angle) * radius, centerY + -Math.cos(angle) * radius);
+            ctx.lineWidth = 5;
+            ctx.strokeStyle = 'oklch(0.723 0.219 149.579)';
+            
+            ctx.stroke();
+        }
+
     </script>
 </html>
