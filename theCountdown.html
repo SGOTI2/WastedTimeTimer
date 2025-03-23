@@ -13,23 +13,16 @@
                 -webkit-appearance: none;
                 margin: 0;
             }
-            @keyframes animation {
-                from {
-                    background-color: oklch(0.208 0.042 265.755) !important;
-                }
-                50% {
-                    background-color: oklch(0.637 0.237 25.331) !important;
-                }
-                to {
-                    background-color: oklch(0.208 0.042 265.755) !important;
-                }
+            body {
+                transition: all 0.5s;
+                background-color: oklch(0.208 0.042 265.755);
             }
-            .bg-pulse {
-                animation: animation 1s;
+            .bg-flash {
+                background-color: oklch(0.637 0.237 25.331) !important;
             }
         </style>
     </head>
-    <body class="text-center p-5 text-gray-200 bg-slate-900">
+    <body class="text-center p-5 text-gray-200">
         <div class="h-screen flex place-content-center content-center items-center flex-col">
             <h1 class="timer font-bold text-5xl tracking-wider text-red-500">00:00:00.000</h1>
         </div>
@@ -82,19 +75,24 @@
             }
         })
         let lastMin = 0;
+        let t = null;
         function update() {
             const ms = endTime - Date.now();
             const hours = Math.floor(ms / 3600000); // 1 hour = 3600000 ms
             const minutes = Math.floor((ms % 3600000) / 60000); // 1 minute = 60000 ms
             const seconds = Math.floor((ms % 60000) / 1000); // 1 second = 1000 ms
             const milliseconds = ms % 1000;
-            if (lastMin != seconds) {
+
+            if (lastMin != minutes) {
                 document.body.classList.add("bg-flash")
-                setTimeout(() => {
+                if (t != null) {
+                    clearTimeout(t);
+                }
+                t = setTimeout(() => {
                     document.body.classList.remove("bg-flash")
-                }, 1000)
+                }, 500)
             }
-            lastMin = seconds;
+            lastMin = minutes;
 
             timerDiv.innerText = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}.${String(milliseconds).padStart(3, '0')}`;
         }

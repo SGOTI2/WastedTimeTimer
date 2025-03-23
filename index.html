@@ -13,6 +13,13 @@
                 -webkit-appearance: none;
                 margin: 0;
             }
+            body {
+                transition: all 1s;
+                background-color: oklch(0.208 0.042 265.755);
+            }
+            .bg-flash {
+                background-color: oklch(0.637 0.237 25.331) !important;
+            }
         </style>
     </head>
     <body class="bg-gray-900 text-center p-5 text-gray-200">
@@ -75,13 +82,41 @@
                 addDt = Date.now() - timeStart + addDt
             }
         })
+        
+        let lastMin = 0;
+        let lastSec = 0;
+        let t = null;
+
         function update() {
             const ms = Date.now() - timeStart + addDt;
             const hours = Math.floor(ms / 3600000); // 1 hour = 3600000 ms
             const minutes = Math.floor((ms % 3600000) / 60000); // 1 minute = 60000 ms
             const seconds = Math.floor((ms % 60000) / 1000); // 1 second = 1000 ms
             const milliseconds = ms % 1000;
+            
+            if (lastMin != minutes) {
+                document.body.classList.add("bg-flash")
+                if (t != null) {
+                    clearTimeout(t);
+                }
+                t = setTimeout(() => {
+                    document.body.classList.remove("bg-flash")
+                }, 1000)
+            }
+            lastMin = minutes;
+
+            if (lastSec != seconds) {
+                play()
+            }
+            lastSec = seconds;
+
+
             timerDiv.innerText = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}.${String(milliseconds).padStart(3, '0')}`;
+        }
+        function play() {
+            var audio = new Audio('tick.mp3');
+            audio.classList.add("hide");
+            audio.play();
         }
     </script>
 </html>
