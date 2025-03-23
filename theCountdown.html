@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>The Count Down</title>    
+        <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+        <style>
+            input[type="number"]::-webkit-inner-spin-button,
+            input[type="number"]::-webkit-outer-spin-button,
+            input[type='number'] {
+                -moz-appearance: textfield !important;
+                -webkit-appearance: none;
+                margin: 0;
+            }
+            @keyframes animation {
+                from {
+                    background-color: oklch(0.208 0.042 265.755) !important;
+                }
+                50% {
+                    background-color: oklch(0.637 0.237 25.331) !important;
+                }
+                to {
+                    background-color: oklch(0.208 0.042 265.755) !important;
+                }
+            }
+            .bg-pulse {
+                animation: animation 1s;
+            }
+        </style>
+    </head>
+    <body class="text-center p-5 text-gray-200 bg-slate-900">
+        <div class="h-screen flex place-content-center content-center items-center flex-col">
+            <h1 class="timer font-bold text-5xl tracking-wider text-red-500">00:00:00.000</h1>
+        </div>
+        <div class="d-flex items-center justify-center gap-3 m-5">
+            <button class="stop cursor-pointer px-2 py-1 text-center bg-red-800 rounded">Stop</button>
+        </div>
+        <div class="d-flex m-5">
+            <input type="number" class="hrs w-5 outline-none text-end" value="00">
+            :
+            <input type="number" class="mins w-5 outline-none text-end" value="00">
+            :
+            <input type="number" class="secs w-5 outline-none text-end" value="00">
+            .
+            <input type="number" class="mills w-7 outline-none text-start" value="000">
+        </div>
+    </body>
+    <script>
+        const timerDiv = document.querySelector("h1.timer")
+        const startTimer = document.querySelector("button.start")
+        const endTimer = document.querySelector("button.stop")
+        const hrs = document.querySelector("input.hrs")
+        const mins = document.querySelector("input.mins")
+        const secs = document.querySelector("input.secs")
+        const mills = document.querySelector("input.mills")
+        
+        var endTime = Date.now();
+        function calcTotal() {
+            console.log("Exec")
+            let ms = parseInt(hrs.value) * 3600000;
+            ms += parseInt(mins.value) * 60000;
+            ms += parseInt(secs.value) * 1000;
+            ms += parseInt(mills.value);
+            endTime = Date.now() + ms;
+        }
+
+        hrs.addEventListener("keypress", (ev) => {if (ev.key == "Enter") {calcTotal()}});
+        mins.addEventListener("keypress", (ev) => {if (ev.key == "Enter") {calcTotal()}});
+        secs.addEventListener("keypress", (ev) => {if (ev.key == "Enter") {calcTotal()}});
+        mills.addEventListener("keypress", (ev) => {if (ev.key == "Enter") {calcTotal()}});
+
+        let timeStart = null;
+        let updateIntervalId = null;
+        updateIntervalId = setInterval(update, 10);
+        endTimer.addEventListener("click", () => {
+            if (updateIntervalId != null) {
+                clearInterval(updateIntervalId);
+            }
+            if (timeStart != null) {
+                addDt = Date.now() - timeStart + addDt
+            }
+        })
+        let lastMin = 0;
+        function update() {
+            const ms = endTime - Date.now();
+            const hours = Math.floor(ms / 3600000); // 1 hour = 3600000 ms
+            const minutes = Math.floor((ms % 3600000) / 60000); // 1 minute = 60000 ms
+            const seconds = Math.floor((ms % 60000) / 1000); // 1 second = 1000 ms
+            const milliseconds = ms % 1000;
+            if (lastMin != seconds) {
+                document.body.classList.add("bg-flash")
+                setTimeout(() => {
+                    document.body.classList.remove("bg-flash")
+                }, 1000)
+            }
+            lastMin = seconds;
+
+            timerDiv.innerText = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}.${String(milliseconds).padStart(3, '0')}`;
+        }
+    </script>
+</html>
